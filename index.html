@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+<!--
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" type="text/css" />
+-->
+ <link href="css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+.ccMsg{
+	width:100px;overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+-o-text-overflow:ellipsis;}
+
+</style>
+
+ 
+  </head>
+  <body>
+<div style="margin:5px;">
+<button class="btn" onclick="onCfgSave();" ><i class="icon-time"></i> Cfg Setting</button>
+<button class="btn btn-primary" onclick="onJobAdd();" ><i class="icon-time"></i> Add Schedule Job</button>
+<button class="btn btn-info" onclick="onJobRefresh();" ><i class="icon-refresh"></i> Refresh</button>
+<input type="checkbox" id="idChkAuto" value="" onclick="onAutoRefresh();" > Auto Refresh
+<input type="number" style="width:50px;" min="5" max="60" id="idTextAutoInv" value="10" > second
+
+<table class="table table-striped table-bordered" style="margin-top:10px;">
+	<thead>
+		<th>Action</th>
+		<th>Job Name</th>
+		<th>cron</th>
+		<th>fun</th>
+		<th>switch</th>
+		<th>status</th>
+		<th>start Time</th>
+		<th>stop Time</th>
+		<th>latest Run Time</th>
+		<th>message</th>
+	</thead>
+	<tbody id="idTBSchedule">
+	</tbody>
+</table>
+</div>
+
+<div id="idModelJob" class="modal fade">
+  <div class="modal-dialog">
+  <div class="modal-content">
+   <div class="modal-header" >
+       <button data-dismiss="modal" class="close" type="button">×</button>
+       <h3 id="idTxtHead">Job Info</h3>
+   </div>
+   <div class="modal-body">
+       <form class="form-horizontal" > 
+           <div class="form-group">
+               <label class="col-sm-2 control-label" for="idTextJobName">Job Name</label>
+               <div class="col-sm-10">
+                 <input type="text" id="idTextJobName" class="form-control" value="">
+               </div>
+           </div>
+         <div class="form-group">
+               <label class="col-sm-2 control-label" for="idTextCron">Cron String</label>
+               <div class="col-sm-10">
+                 <input type="text" id="idTextCron" value="">
+               </div>
+           </div>
+           <div class="form-group">
+               <label class="col-sm-2 control-label" for="idTextFun">fun Path</label>
+               <div class="col-sm-10">
+                 <input type="text" id="idTextFun" value="">
+               </div>
+           </div>
+           <div class="form-group">
+               <label class="col-sm-2 control-label" for="idChkSwitch">switch</label>
+               <div class="col-sm-10">
+                 <input type="checkbox" id="idChkSwitch"  value="">
+               </div>
+           </div>
+
+           <div class="modal-footer"> 
+           <input type="hidden" id="idCurMainID" value="">
+           <input  id="idButJobAdd" type="button" class="btn btn-primary" onclick="addJob();"  value="Add Job">
+           <input  id="idButJobUpdate" type="button" class="btn btn-primary" onclick="updateJob();"  value="Update Job">
+           <a data-dismiss="modal" class="btn" href="#">Cannel</a>
+          </div>
+       </form>       
+   </div>
+   </div>
+   </div>
+</div>
+
+<!-- model Cfg -->
+<div id="idModelCfg" class="modal fade">
+  <div class="modal-dialog">
+  <div class="modal-content">
+   <div class="modal-header" >
+       <button data-dismiss="modal" class="close" type="button">×</button>
+       <h3>Config Setting</h3>
+   </div>
+   <div class="modal-body">
+       <form class="form-horizontal" > 
+           <div class="form-group">
+               <label class="col-sm-2 control-label" for="idTextCfgIP">Redis IP</label>
+               <div class="col-sm-10">
+                 <input type="text" id="idTextCfgIP" class="form-control" value="">
+               </div>
+           </div>
+         <div class="form-group">
+               <label class="col-sm-2 control-label" for="idTextCfgPort">Redis Port</label>
+               <div class="col-sm-10">
+                 <input type="text" id="idTextCfgPort" value="">
+               </div>
+           </div>
+           <div class="form-group">
+               <label class="col-sm-2 control-label" for="idTextCfgKeyPre">Key Pre</label>
+               <div class="col-sm-10">
+                 <input type="text" id="idTextCfgKeyPre" value="">
+               </div>
+           </div>
+
+           <div class="modal-footer"> 
+           <input type="button" class="btn btn-primary" onclick="cfgSaveing();"  value="Save Cfg">
+           <a data-dismiss="modal" class="btn" href="#">Cannel</a>
+          </div>
+       </form>       
+   </div>
+   </div>
+   </div>
+</div>
+
+</body>
+
+<script>
+    // You can also require other files to run in this process
+    window.$ = window.jQuery = require('jquery');
+    require('bootstrap');
+    var g_Con = require('./renderer.js')();
+
+    require('./menu/menu.js');
+    require('./layer/layer.min.js');
+</script>
+
+
+<script type="text/javascript">
+
+$(function(){
+  g_Con.start();
+	get_jobs_ajax();
+});
+
+
+	
+function get_jobs_ajax()
+{
+		var re = layer.load("获取数据中...",5);
+
+    g_Con.get_jobs(function( data ){
+        layer.close( re );
+
+        if( data.status === true ){
+          var con = "";
+
+          for( var job in data.jobs){
+            con += '<tr id="idJob_'+ job +'" sw="'+ ((data.jobs[job].switch==true)?1:0) +'">';
+            con += '<td>';
+            con += '<button class="btn btn-mini btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" >Edit</button> ';
+            con += '<button class="btn btn-mini btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" >Delete</button>';
+            con += '</td>';
+            con += '<td>'+ job +'</td>';
+            con += '<td id="idJobCron_'+job+'">'+ data.jobs[job].cron +'</td>';
+					  con += '<td id="idJobFun_'+job+'">'+ data.jobs[job].fun +'</td>';
+
+            if( data.jobs[job].switch == true ){
+              con += '<td><span class="label label-success">Open</span></td>';
+            }else{
+              con += '<td><span class="label">Close</span></td>';
+            }
+
+            if( data.jobs[job].status == true ){
+              con += '<td><span class="label label-success">Run</span></td>';
+            }else{
+              con += '<td><span class="label">Stop</span></td>';
+            }
+
+            if( data.jobs[job].startTime !== undefined ){
+              con += '<td>'+ data.jobs[job].startTime +'</td>';
+            }else{
+              con += '<td></td>';
+            }
+
+
+            if( data.jobs[job].stopTime !== undefined ){
+              con += '<td>'+ data.jobs[job].stopTime +'</td>';
+            }else{
+              con += '<td></td>';
+            }
+
+            if( data.jobs[job].runTime !== undefined ){
+              con += '<td>'+ data.jobs[job].runTime +'</td>';
+            }else{
+              con += '<td></td>';
+            }
+
+            if( data.jobs[job].latestHandleType == 4 ){
+              con += '<td><span class="badge badge-important ccMsg" title="'+ data.jobs[job].msg +'">'+ data.jobs[job].msg +'</span></td>';
+            }else{
+              con += '<td><span class="ccMsg" title="'+ data.jobs[job].msg +'">'+ data.jobs[job].msg +'</span></td>';
+            }
+            
+                  con += '</tr>';
+            }
+
+           		$("#idTBSchedule").html( con );
+          }
+    });
+
+
+	};
+
+	function onJobRefresh(){
+		get_jobs_ajax();
+	}
+
+
+
+	function onJobEdit( jobName ){
+		console.log( 'edit ' + jobName);
+
+		$("#idButJobUpdate").css('display','inline-block');
+		$("#idButJobAdd").css('display','none');
+
+		$("#idTextJobName").val( jobName );
+		$("#idTextJobName").attr( "readonly","readonly" );
+
+		$("#idTextCron").val( $("#idJobCron_" + jobName).text());
+		$("#idTextFun").val(  $("#idJobFun_" + jobName).text() );
+
+		var sw = $("#idJob_"+jobName).attr('sw');
+		if( sw == 1 ){
+			$("#idChkSwitch").prop("checked", true);
+		}else{
+			$("#idChkSwitch").prop("checked", false);
+		}
+
+		$("#idTxtHead").text('Update schedule Job Info');
+
+		$("#idModelJob").modal('show');
+	}
+
+
+	function onJobDel( jobName ){
+		layer.confirm("Are you sure Delte Job [ " + jobName +" ]?", function(){
+			delJob_ajax(jobName);
+		});
+	}
+
+
+	function delJob_ajax( jobName ){
+		var sw = ($("#idChkSwitch").attr("checked")==="checked")?true:false;
+		var re = layer.load("删除中...",0);
+
+    g_Con.del_job( jobName, function( data ){
+        layer.close( re );
+
+        layer.msg( data.msg);
+        if( data.status === true ){
+          get_jobs_ajax();
+        }
+
+    });
+	}
+
+
+
+	function onJobAdd(  ){
+		$("#idButJobUpdate").css('display','none');
+		$("#idButJobAdd").css('display','inline-block');
+
+		$("#idTextJobName").removeAttr( "readonly");
+		$("#idTxtHead").text('Add schedule Job');
+
+		$("#idModelJob").modal('show');
+	}
+
+
+  function onCfgSave(){
+      var cfg = g_Con.get_cfg();
+      console.log( cfg  );
+      $("#idTextCfgIP").val( cfg.redis.host );
+      $("#idTextCfgPort").val( cfg.redis.port );
+      $("#idTextCfgKeyPre").val( cfg.opt.keyPre );
+
+      $("#idModelCfg").modal('show');
+    
+  }
+
+  function cfgSaveing(){
+        var cfg = {
+            redis:{ 
+              host:$("#idTextCfgIP").val(),
+              port:$("#idTextCfgPort").val()
+            },
+            opt:{
+                keyPre:$("#idTextCfgKeyPre").val()
+            }
+        };
+
+      g_Con.save_cfg( cfg );
+      $("#idModelCfg").modal('hide');
+  }
+
+
+
+	function updateJob(){
+		layer.confirm("Are you sure Update the Job?", function(){
+			updateJob_ajax();
+		});
+	}
+
+	function updateJob_ajax(){
+		layer.closeAll();
+
+		var sw = $("#idChkSwitch").prop("checked");
+		var re = layer.load("更新中...",0);
+
+		var cfg = {
+			cron:$("#idTextCron").val(),
+			fun:$("#idTextFun").val(),
+			switch:sw
+		};
+
+
+    g_Con.update_job($("#idTextJobName").val(),cfg, function(data){
+       	layer.close( re );
+
+        layer.msg( data.response);
+          if( data.status === true ){
+            $("#idModelJob").modal('hide');
+            get_jobs_ajax();
+          }
+    });
+	}
+
+
+	function addJob(){
+		layer.confirm("Are you sure Add Job?", function(){
+			addJob_ajax();
+		});
+	}
+
+
+	function addJob_ajax(){
+		layer.closeAll();
+
+		var sw = ($("#idChkSwitch").attr("checked")==="checked")?true:false;
+		var re = layer.load("添加中...",0);
+
+		var cfg = {
+			cron:$("#idTextCron").val(),
+			fun:$("#idTextFun").val(),
+			switch:sw
+		};
+
+    g_Con.add_job($("#idTextJobName").val(), cfg, function(data){
+        layer.close( re );
+
+        layer.msg( data.msg);
+        if( data.status === true ){
+          $("#idModelJob").modal('hide');
+          get_jobs_ajax();
+        }
+
+    });
+	}
+
+var g_Timer = null;
+
+
+function onAutoRefresh(){
+	if( g_Timer !== null ){
+		clearInterval( g_Timer );
+		g_Timer = null;
+	}
+
+	var sw = $("#idChkAuto").prop("checked");
+	if( sw === true ){
+		var inv = $("#idTextAutoInv").val();
+		if( inv < 5 || inv > 60 ){
+			inv = 10;
+		}
+
+		g_Timer = setInterval( function(){
+			get_jobs_ajax();
+		}, inv * 1000 );
+
+		get_jobs_ajax();
+	}
+}
+
+</script>
+</html>
+
