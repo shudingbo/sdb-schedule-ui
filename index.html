@@ -128,6 +128,30 @@ text-overflow:ellipsis;
    </div>
 </div>
 
+<div id="idModelJobCfg" class="modal fade">
+  <div class="modal-dialog">
+  <div class="modal-content">
+   <div class="modal-header" >
+       <button data-dismiss="modal" class="close" type="button">×</button>
+       <h3 id="idTxtHeadCfg">Job Config</h3>
+   </div>
+   <div class="modal-body">
+       <form class="" >
+           <div class="">
+            	<textarea id="idTextJobCfg" style="width:100%;" rows="10"></textarea>
+           </div>
+
+           <div class="modal-footer"> 
+           <input type="hidden" id="idCurCfgMainID" value="">
+           <input  id="idButJobCfgUpdate" type="button" class="btn btn-primary" onclick="updateJobCfg();"  value="Update Job Config">
+           <a data-dismiss="modal" class="btn" href="#">Cannel</a>
+          </div>
+       </form>       
+   </div>
+  </div>
+  </div>
+</div>
+
 </body>
 
 <script>
@@ -163,8 +187,9 @@ function get_jobs_ajax()
           for( var job in data.jobs){
             con += '<tr id="idJob_'+ job +'" sw="'+ ((data.jobs[job].switch==true)?1:0) +'">';
             con += '<td>';
-            con += '<button class="btn btn-mini btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" >Edit</button> ';
-            con += '<button class="btn btn-mini btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" >Delete</button>';
+            con += '<button class="btn btn-xs btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" >Edit</button> ';
+            con += '<button class="btn btn-xs btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" >Delete</button> ';
+            con += '<button class="btn btn-xs btn-warning" onclick="onJobConf('+"'"+ job+"'"+');" >Config</button>';
             con += '</td>';
             con += '<td>'+ job +'</td>';
             con += '<td id="idJobCron_'+job+'">'+ data.jobs[job].cron +'</td>';
@@ -396,6 +421,39 @@ function onAutoRefresh(){
 
 		get_jobs_ajax();
 	}
+}
+
+function onJobConf( jobName )
+{
+	var re = layer.load("正在获取配置..."); 
+	g_Con.get_job_cfg( jobName, function(data) {
+      layer.close( re );
+
+			$("#idTxtHeadCfg").text( jobName + " config edit" );
+			$("#idCurCfgMainID").val( jobName );
+			$("#idTextJobCfg").text( data.cfg );
+      $("#idModelJobCfg").modal('show');
+  });
+}
+
+function updateJobCfg()
+{
+	var jobName = $("#idCurCfgMainID").val( );
+	var jobCfg = $("#idTextJobCfg").val( );
+	try{
+		JSON.parse(jobCfg );
+	}catch(err){
+		layer.msg( err, 5, 0 );
+		return;
+	}
+	
+	var re = layer.load("正在更新配置..."); 
+	g_Con.set_job_cfg( jobName, jobCfg, function(data) {
+        layer.close( re );
+
+        $("#idModelJobCfg").modal('hide');
+    });
+
 }
 
 </script>

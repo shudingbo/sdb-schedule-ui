@@ -111,12 +111,14 @@ sdbControl.prototype.del_job = function( jobname,cb )
             }else{
                 self.redis.hdel( self.keyJobs, jobname );
                 self.redis.hdel( self.keyStatus, jobname );
+                self.redis.hdel( self.keyCfgs, jobname );
                 ret.status = true;
                 ret.msg = jobname + " delete success";
             }
         }else{
             self.redis.hdel( self.keyJobs, jobname );
             self.redis.hdel( self.keyStatus, jobname );
+            self.redis.hdel( self.keyCfgs, jobname );
             ret.status = true;
             ret.msg = jobname + " delete success";
         }
@@ -185,7 +187,35 @@ sdbControl.prototype.get_cfg = function(  )
     return g_cfg;
 }
 
+sdbControl.prototype.get_job_cfg = function( jobName, cb){
+    var self = this;
+    self.redis.hget( self.keyCfgs, jobName, function(err, reply){
+        var ret = { status: true,cfg:"{}"};
+        if( err === null && reply !== null ){
+            console.log(reply);
+            ret.cfg = reply;
+        }
 
+        if( cb ){ cb( ret );}
+    });
+};
+
+sdbControl.prototype.set_job_cfg = function(jobName, cfg, cb){
+    var self = this;
+    self.redis.hset( self.keyCfgs, jobName, cfg, function(){
+        var ret = { status: false,msg: jobName + ' config update failure'};
+        if( err === null && reply !== null ){
+            ret.status = true;
+            ret.msg = jobName + " config update success";
+        }
+            
+        if( ret.status === true ){
+            self.updateTime( jobName);
+        }
+
+        if( cb ){ cb( ret );}
+    });
+}
 
 
 

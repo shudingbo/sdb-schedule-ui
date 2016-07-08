@@ -15,6 +15,16 @@ First,you must set the redis config.
 
 ![Setting][idSet]
 
+## ChangeLog
+
+### 0.1.1
+- Support Job's Config Edit;
+
+### 0.1.0
+- Job Add / del / Edit;
+- Redis Config Setting;
+
+
 
 [sdb-schedule]: https://github.com/shudingbo/sdb-schedule
 [download]: https://github.com/shudingbo/sdb-public/blob/master/sdb-schedule-ui/sdb-schedule-ui.7z
