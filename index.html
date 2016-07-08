@@ -173,13 +173,13 @@ function get_jobs_ajax()
             if( data.jobs[job].switch == true ){
               con += '<td><span class="label label-success">Open</span></td>';
             }else{
-              con += '<td><span class="label">Close</span></td>';
+              con += '<td><span class="label label-default">Close</span></td>';
             }
 
             if( data.jobs[job].status == true ){
               con += '<td><span class="label label-success">Run</span></td>';
             }else{
-              con += '<td><span class="label">Stop</span></td>';
+              con += '<td><span class="label label-default">Stop</span></td>';
             }
 
             if( data.jobs[job].startTime !== undefined ){
@@ -204,7 +204,8 @@ function get_jobs_ajax()
             if( data.jobs[job].latestHandleType == 4 ){
               con += '<td><span class="badge badge-important ccMsg" title="'+ data.jobs[job].msg +'">'+ data.jobs[job].msg +'</span></td>';
             }else{
-              con += '<td><span class="ccMsg" title="'+ data.jobs[job].msg +'">'+ data.jobs[job].msg +'</span></td>';
+              var msg = (data.jobs[job].msg == undefined)?'':data.jobs[job].msg;
+              con += '<td><span class="ccMsg" title="'+ data.jobs[job].msg +'">'+ msg +'</span></td>';
             }
             
                   con += '</tr>';

@@ -19,6 +19,7 @@ var sdbControl = function(){
     this.keyChk = g_cfg.opt.keyPre + ":updateTime";
 	this.keyJobs = g_cfg.opt.keyPre + ":jobs";
 	this.keyStatus = g_cfg.opt.keyPre + ":status";
+	this.keyCfgs = g_cfg.opt.keyPre + ":cfg";
 }
 
 
@@ -35,8 +36,8 @@ sdbControl.prototype.start = function( ){
 };
 
 
-sdbControl.prototype.updateTime = function( ){
-    this.redis.set( this.keyChk, parseInt((new Date()).valueOf()/1000 ));
+sdbControl.prototype.updateTime = function( jobName ){
+    this.redis.hset( this.keyChk, jobName,parseInt((new Date()).valueOf()/1000 ));
 };
 
 
@@ -121,7 +122,7 @@ sdbControl.prototype.del_job = function( jobname,cb )
         }
 
         if( ret.status === true ){
-            self.updateTime();
+            self.updateTime(jobname );
         }
             
         if( cb ){ cb( ret );}
@@ -142,7 +143,7 @@ sdbControl.prototype.add_job = function( jobname, cfg,cb )
         }
 
         if( ret.status === true ){
-            self.updateTime();
+            self.updateTime(jobname);
         }
             
         if( cb ){ cb( ret );}
@@ -163,7 +164,7 @@ sdbControl.prototype.update_job = function( jobname, cfg,cb )
         }
             
         if( ret.status === true ){
-            self.updateTime();
+            self.updateTime( jobname);
         }
 
         if( cb ){ cb( ret );}
