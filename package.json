@@ -8,20 +8,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-quick-start.git"
+    "url": "https://github.com/shudingbo/sdb-schedule-ui"
   },
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial"
+    "sdb-schedule",
+    "schedule"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "shudingbo",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/electron/electron-quick-start/issues"
   },
-  "homepage": "https://github.com/electron/electron-quick-start#readme",
+  "homepage": "https://github.com/shudingbo/sdb-schedule-ui/issues",
   "devDependencies": {
     "electron-prebuilt": "^1.2.0"
   },

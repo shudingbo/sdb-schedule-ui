@@ -19,9 +19,9 @@ text-overflow:ellipsis;
 </head>
 <body>
 <div style="margin:5px;">
-<button class="btn" onclick="onCfgSave();" ><i class="icon-time"></i> Cfg Setting</button>
-<button class="btn btn-primary" onclick="onJobAdd();" ><i class="icon-time"></i> Add Schedule Job</button>
-<button class="btn btn-info" onclick="onJobRefresh();" ><i class="icon-refresh"></i> Refresh</button>
+<button class="btn" onclick="onCfgSave();" ><i class="glyphicon glyphicon-cog"></i> Setting</button>
+<button class="btn btn-primary" onclick="onJobAdd();" ><i class="glyphicon glyphicon-plus"></i> Add Job</button>
+<button class="btn btn-info" onclick="onJobRefresh();" ><i class="glyphicon glyphicon-refresh"></i> Refresh</button>
 <input type="checkbox" id="idChkAuto" value="" onclick="onAutoRefresh();" > Auto Refresh
 <input type="number" style="width:50px;" min="5" max="60" id="idTextAutoInv" value="10" > second
 
@@ -29,8 +29,8 @@ text-overflow:ellipsis;
 	<thead>
 		<th>Action</th>
 		<th>Job Name</th>
-		<th>cron</th>
-		<th>fun</th>
+		<!--<th>cron</th>
+		<th>fun</th>-->
 		<th>switch</th>
 		<th>status</th>
 		<th>start Time</th>
@@ -187,13 +187,13 @@ function get_jobs_ajax()
           for( var job in data.jobs){
             con += '<tr id="idJob_'+ job +'" sw="'+ ((data.jobs[job].switch==true)?1:0) +'">';
             con += '<td>';
-            con += '<button class="btn btn-xs btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" >Edit</button> ';
-            con += '<button class="btn btn-xs btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" >Delete</button> ';
-            con += '<button class="btn btn-xs btn-warning" onclick="onJobConf('+"'"+ job+"'"+');" >Config</button>';
+            con += '<button class="btn btn-xs btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-edit"></i></button> ';
+            con += '<button class="btn btn-xs btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-remove"></i></button> ';
+            con += '<button class="btn btn-xs btn-warning" onclick="onJobConf('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-wrench"></i></button>';
             con += '</td>';
             con += '<td>'+ job +'</td>';
-            con += '<td id="idJobCron_'+job+'">'+ data.jobs[job].cron +'</td>';
-					  con += '<td id="idJobFun_'+job+'">'+ data.jobs[job].fun +'</td>';
+            con += '<td style="display:none;" id="idJobCron_'+job+'">'+ data.jobs[job].cron +'</td>';
+					  con += '<td style="display:none;" id="idJobFun_'+job+'">'+ data.jobs[job].fun +'</td>';
 
             if( data.jobs[job].switch == true ){
               con += '<td><span class="label label-success">Open</span></td>';
