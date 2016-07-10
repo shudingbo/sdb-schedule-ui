@@ -202,7 +202,7 @@ sdbControl.prototype.get_job_cfg = function( jobName, cb){
 
 sdbControl.prototype.set_job_cfg = function(jobName, cfg, cb){
     var self = this;
-    self.redis.hset( self.keyCfgs, jobName, cfg, function(){
+    self.redis.hset( self.keyCfgs, jobName, cfg, function(err,reply){
         var ret = { status: false,msg: jobName + ' config update failure'};
         if( err === null && reply !== null ){
             ret.status = true;
