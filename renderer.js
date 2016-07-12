@@ -3,6 +3,7 @@
 var redis = require('redis');
 var moment = require('moment')
 var configuration = require('./configuration.js');
+var CornParser = require('cron-parser');
 
 module.exports = function(){
     return new sdbControl();
@@ -135,13 +136,21 @@ sdbControl.prototype.del_job = function( jobname,cb )
 sdbControl.prototype.add_job = function( jobname, cfg,cb )
 {
     var self = this;
+    var ret = { status: false,msg: jobname + ' add faiule'};
+
+    var retChk = checkCornString( cfg.cron );
+    if( retChk.status === false  ){
+        ret.msg += retChk.msg;
+        if( cb ){ cb( ret );}
+        return;
+    }
 
     self.redis.hset( self.keyJobs, jobname, JSON.stringify(cfg),
     function( err,reply){
-        var ret = { status: false,msg: jobname + ' add faiule'};
+        
         if( err === null && reply !== null ){
             ret.status = true;
-            ret.msg = jobname + " add success";
+            ret.msg = jobname + " add success:<p>" +  retChk.msg;
         }
 
         if( ret.status === true ){
@@ -156,13 +165,20 @@ sdbControl.prototype.add_job = function( jobname, cfg,cb )
 sdbControl.prototype.update_job = function( jobname, cfg,cb )
 {
     var self = this;
+    var ret = { status: false,msg: jobname + ' update faiule '};
+
+    var retChk = checkCornString( cfg.cron );
+    if( retChk.status === false  ){
+        ret.msg += retChk.msg;
+        if( cb ){ cb( ret );}
+        return;
+    }
 
     self.redis.hset( self.keyJobs, jobname, JSON.stringify(cfg),
     function( err,reply){
-        var ret = { status: false,msg: jobname + ' add faiule'};
         if( err === null && reply !== null ){
             ret.status = true;
-            ret.msg = jobname + " add success";
+            ret.msg = jobname + " update success <p>" + retChk.msg;
         }
             
         if( ret.status === true ){
@@ -235,6 +251,20 @@ function disconnectRedis( self ){
 	console.log("-- DisConnect from redis.");
 }
 
+
+function checkCornString( szCron )
+{
+    var ret = {"status":false, "msg":""};
+    try {
+        var interval = CornParser.parseExpression(szCron);
+        ret.status = true;
+        ret.msg = 'Next Run at: ' + interval.next().toString();
+    } catch (err) {
+        ret.msg = 'Error: ' + err.message;
+    }
+
+    return ret;
+}
 
 
 

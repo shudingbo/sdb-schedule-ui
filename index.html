@@ -357,13 +357,16 @@ function get_jobs_ajax()
 
 
     g_Con.update_job($("#idTextJobName").val(),cfg, function(data){
-       	layer.close( re );
-
-        layer.msg( data.response);
-          if( data.status === true ){
-            $("#idModelJob").modal('hide');
+        layer.close( re );
+  
+        if( data.status === true ){
+          $("#idModelJob").modal('hide');
+          layer.msg( data.msg,5,1, function(){
             get_jobs_ajax();
-          }
+          });
+        }else{
+          layer.msg( data.msg,5,0);
+        }
     });
 	}
 
@@ -390,10 +393,13 @@ function get_jobs_ajax()
     g_Con.add_job($("#idTextJobName").val(), cfg, function(data){
         layer.close( re );
 
-        layer.msg( data.msg);
         if( data.status === true ){
           $("#idModelJob").modal('hide');
-          get_jobs_ajax();
+          layer.msg( data.msg,5,1, function(){
+            get_jobs_ajax();
+          });
+        }else{
+          layer.msg( data.msg,5,0);
         }
 
     });
