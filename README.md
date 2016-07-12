@@ -16,6 +16,8 @@ First,you must set the redis config.
 ![Setting][idSet]
 
 ## ChangeLog
+### 0.1.3
+- Fix Bug, when get job's config, can't display in Config Edit Control( control always dispaly last edit content).
 
 ### 0.1.1
 - Support Job's Config Edit;
