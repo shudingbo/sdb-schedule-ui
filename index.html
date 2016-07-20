@@ -226,11 +226,32 @@ function get_jobs_ajax()
               con += '<td></td>';
             }
 
+            var jobmsg = data.jobs[job].msg;
+					if( jobmsg === undefined ){
+						jobmsg = '';
+					}
+
+				    var badgeType = '';
             if( data.jobs[job].latestHandleType == 4 ){
-              con += '<td><span class="badge badge-important ccMsg" title="'+ data.jobs[job].msg +'">'+ data.jobs[job].msg +'</span></td>';
+              badgeType = 'label-danger';
+            }else if( jobmsg.search(/error/i) >= 0  ){
+              badgeType = 'label-danger';
+              jobmsg = jobmsg.replace(/error/i, "");
+            }else if( jobmsg.search(/warn/i) >= 0  ){
+              badgeType = 'label-warning';
+              jobmsg = jobmsg.replace(/warn/i, "");
+            }else if( jobmsg.search(/info/i) >= 0  ){
+              badgeType = 'label-info';
+              jobmsg = jobmsg.replace(/info/i, "");
+            }else if( jobmsg.search(/success/i) >= 0  ){
+              badgeType = 'label-success';
+              jobmsg = jobmsg.replace(/success/i, "");
+            }
+
+            if( badgeType.length > 0 ){
+              con += '<td><span class="label '+ badgeType +' ccMsg" title="'+ jobmsg +'">'+ jobmsg +'</span></td>';
             }else{
-              var msg = (data.jobs[job].msg == undefined)?'':data.jobs[job].msg;
-              con += '<td><span class="ccMsg" title="'+ data.jobs[job].msg +'">'+ msg +'</span></td>';
+              con += '<td><span class="ccMsg" title="'+ jobmsg +'">'+ jobmsg +'</span></td>';
             }
             
                   con += '</tr>';
