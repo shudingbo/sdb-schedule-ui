@@ -77,6 +77,12 @@ sdbControl.prototype.get_jobs = function( cb )
                             }else{
                                 st.runTime = '';
                             }
+                            
+                            if( st.nextRunTime != 0 && st.nextRunTime !== undefined ){
+                                st.nxRunTime = moment(new Date(st.nextRunTime*1000)).format('YYYY-MM-DD HH:mm:ss');
+                            }else{
+                                st.nxRunTime = '';
+                            }
 
                             for( tmp in st){
                                 jobArr[sta][tmp] = st[tmp];

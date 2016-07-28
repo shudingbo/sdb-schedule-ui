@@ -16,6 +16,9 @@ First,you must set the redis config.
 ![Setting][idSet]
 
 ## ChangeLog
+### 0.1.6
+- Add "next Run Time" display.
+
 ### 0.1.3
 - Fix Bug, when get job's config, can't display in Config Edit Control( control always dispaly last edit content).
 

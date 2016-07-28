@@ -36,6 +36,7 @@ text-overflow:ellipsis;
 		<th>start Time</th>
 		<th>stop Time</th>
 		<th>latest Run Time</th>
+		<th>nex Run Time</th>
 		<th>message</th>
 	</thead>
 	<tbody id="idTBSchedule">
@@ -222,6 +223,12 @@ function get_jobs_ajax()
 
             if( data.jobs[job].runTime !== undefined ){
               con += '<td>'+ data.jobs[job].runTime +'</td>';
+            }else{
+              con += '<td></td>';
+            }
+
+            if( data.jobs[job].nxRunTime !== undefined ){
+              con += '<td>'+ data.jobs[job].nxRunTime +'</td>';
             }else{
               con += '<td></td>';
             }
