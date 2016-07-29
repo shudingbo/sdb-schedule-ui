@@ -16,6 +16,9 @@ First,you must set the redis config.
 ![Setting][idSet]
 
 ## ChangeLog
+### 0.1.7
+- Support subJob display.
+
 ### 0.1.6
 - Add "next Run Time" display.
 

@@ -187,19 +187,32 @@ function get_jobs_ajax()
 
           for( var job in data.jobs){
             con += '<tr id="idJob_'+ job +'" sw="'+ ((data.jobs[job].switch==true)?1:0) +'">';
-            con += '<td>';
-            con += '<button class="btn btn-xs btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-edit"></i></button> ';
-            con += '<button class="btn btn-xs btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-remove"></i></button> ';
-            con += '<button class="btn btn-xs btn-warning" onclick="onJobConf('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-wrench"></i></button>';
-            con += '</td>';
-            con += '<td>'+ job +'</td>';
-            con += '<td style="display:none;" id="idJobCron_'+job+'">'+ data.jobs[job].cron +'</td>';
-					  con += '<td style="display:none;" id="idJobFun_'+job+'">'+ data.jobs[job].fun +'</td>';
+            if( data.jobs[job].parent === undefined ){
+              con += '<td>';
+              con += '<button class="btn btn-xs btn-info" onclick="onJobEdit('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-edit"></i></button> ';
+              con += '<button class="btn btn-xs btn-danger" onclick="onJobDel('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-remove"></i></button> ';
+              con += '<button class="btn btn-xs btn-warning" onclick="onJobConf('+"'"+ job+"'"+');" ><i class="glyphicon glyphicon-wrench"></i></button>';
+              con += '</td>';
+              con += '<td>'+ job +'</td>';
+              con += '<td style="display:none;" id="idJobCron_'+job+'">'+ data.jobs[job].cron +'</td>';
+              con += '<td style="display:none;" id="idJobFun_'+job+'">'+ data.jobs[job].fun +'</td>';
 
-            if( data.jobs[job].switch == true ){
-              con += '<td><span class="label label-success">Open</span></td>';
             }else{
-              con += '<td><span class="label label-default">Close</span></td>';
+              con += "<td></td>";
+              con += '<td>'+ job +'</td>';
+              con += '<td style="display:none;" id="idJobCron_'+job+'"></td>';
+              con += '<td style="display:none;" id="idJobFun_'+job+'"></td>';
+					  }
+
+            
+            if( data.jobs[job].parent === undefined ){
+              if( data.jobs[job].switch == true ){
+                con += '<td><span class="label label-success">Open</span></td>';
+              }else{
+                con += '<td><span class="label label-default">Close</span></td>';
+              }
+            }else{
+              con += "<td></td>";
             }
 
             if( data.jobs[job].status == true ){

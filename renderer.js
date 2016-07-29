@@ -57,9 +57,9 @@ sdbControl.prototype.get_jobs = function( cb )
                     }
 
                     for( sta in status ){
+                        var st = JSON.parse(status[sta]);
                         if(  jobArr[sta] !== undefined )
                         {
-                            var st = JSON.parse(status[sta]);
                             if( st.startTime != 0 ){
                                 st.startTime = moment(new Date(st.startTime*1000)).format('YYYY-MM-DD HH:mm:ss');
                             }else{
@@ -87,10 +87,55 @@ sdbControl.prototype.get_jobs = function( cb )
                             for( tmp in st){
                                 jobArr[sta][tmp] = st[tmp];
                             }
+                        }else{
+                            if( st['parent'] !== undefined ){
+                                if( st.startTime != 0 ){
+                                    st.startTime = moment(new Date(st.startTime*1000)).format('YYYY-MM-DD HH:mm:ss');
+                                }else{
+                                    st.startTime = '';
+                                }
+
+                                if( st.stopTime != 0 ){
+                                    st.stopTime = moment(new Date(st.stopTime*1000)).format('YYYY-MM-DD HH:mm:ss');
+                                }else{
+                                    st.stopTime = '';
+                                }
+
+                                if( st.latestRunTime != 0 ){
+                                    st.runTime = moment(new Date(st.latestRunTime*1000)).format('YYYY-MM-DD HH:mm:ss');
+                                }else{
+                                    st.runTime = '';
+                                }
+                                
+                                if( st.nextRunTime != 0 && st.nextRunTime !== undefined ){
+                                    st.nxRunTime = moment(new Date(st.nextRunTime*1000)).format('YYYY-MM-DD HH:mm:ss');
+                                }else{
+                                    st.nxRunTime = '';
+                                }
+
+                                //
+                                var jobTName = st['parent'] + '-' + sta;
+                                jobArr[ jobTName ] = {};
+                                for( tmp in st){
+                                    jobArr[jobTName][tmp] = st[tmp];
+                                }
+
+                            }
                         }
                     }
 
-                    ret.jobs = jobArr;
+
+                    /// sort
+                    var jobNamesT = [];
+                    for( var tJob in jobArr ){
+                        jobNamesT.push(tJob);
+                    }
+                    jobNamesT.sort();
+
+                    ret.jobs = {};
+                    for( var tJob in jobNamesT ){
+                        ret.jobs[ jobNamesT[tJob] ] = jobArr[ jobNamesT[tJob] ];
+                    }
                     if( cb ){cb( ret );}
                 }
             });
