@@ -22,14 +22,15 @@
   },
   "homepage": "https://github.com/shudingbo/sdb-schedule-ui/issues",
   "devDependencies": {
+    "electron": "1.8.2",
     "electron-prebuilt": "^1.2.0"
   },
   "dependencies": {
     "bootstrap": "^3.3.6",
     "cron-parser": "^2.1.0",
+    "ioredis": "^3.2.2",
     "jquery": "^3.0.0",
     "moment": "^2.13.0",
-    "nconf": "^0.8.4",
-    "redis": "^2.6.2"
+    "nconf": "^0.8.4"
   }
 }

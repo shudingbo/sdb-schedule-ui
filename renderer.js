@@ -1,21 +1,20 @@
 
-
-var redis = require('redis');
-var moment = require('moment')
-var configuration = require('./configuration.js');
-var CornParser = require('cron-parser');
+const redis = require('ioredis');
+const moment = require('moment')
+const configuration = require('./configuration.js');
+const CornParser = require('cron-parser');
 
 module.exports = function(){
     return new sdbControl();
 };
 
-var g_cfg = {
+let g_cfg = {
 	redis:{ host:'127.0.0.1',port:6379 },
     opt:{keyPre:'sdb:schedule'}
 };
 
 
-var sdbControl = function(){
+let sdbControl = function(){
     this.redis = null;
     this.keyChk = g_cfg.opt.keyPre + ":updateTime";
 	this.keyJobs = g_cfg.opt.keyPre + ":jobs";
@@ -25,7 +24,7 @@ var sdbControl = function(){
 
 
 sdbControl.prototype.start = function( ){
-    var cfg = configuration.readSettings('cfg');
+    let cfg = configuration.readSettings('cfg');
 
     if (!cfg) {
         configuration.saveSettings('cfg', g_cfg);
@@ -44,20 +43,20 @@ sdbControl.prototype.updateTime = function( jobName ){
 
 sdbControl.prototype.get_jobs = function( cb )
 {
-    var self = this;
+    let self = this;
 	self.redis.hgetall( self.keyJobs,function( err, jobs){
-        var ret = {status:false};
+        let ret = {status:false};
         if( err === null && jobs !== null ){
             self.redis.hgetall( self.keyStatus,function( errSta, status){
                 if( errSta === null && status !== null ){
                     ret.status = true;
-                    var jobArr = {};
+                    let jobArr = {};
                     for( sc in jobs ){
                         jobArr[ sc ] = JSON.parse(jobs[sc]);
                     }
 
                     for( sta in status ){
-                        var st = JSON.parse(status[sta]);
+                        let st = JSON.parse(status[sta]);
                         if(  jobArr[sta] !== undefined )
                         {
                             if( st.startTime != 0 ){
@@ -114,7 +113,7 @@ sdbControl.prototype.get_jobs = function( cb )
                                 }
 
                                 //
-                                var jobTName = st['parent'] + '-' + sta;
+                                let jobTName = st['parent'] + '-' + sta;
                                 jobArr[ jobTName ] = {};
                                 for( tmp in st){
                                     jobArr[jobTName][tmp] = st[tmp];
@@ -126,14 +125,14 @@ sdbControl.prototype.get_jobs = function( cb )
 
 
                     /// sort
-                    var jobNamesT = [];
-                    for( var tJob in jobArr ){
+                    let jobNamesT = [];
+                    for( let tJob in jobArr ){
                         jobNamesT.push(tJob);
                     }
                     jobNamesT.sort();
 
                     ret.jobs = {};
-                    for( var tJob in jobNamesT ){
+                    for( let tJob in jobNamesT ){
                         ret.jobs[ jobNamesT[tJob] ] = jobArr[ jobNamesT[tJob] ];
                     }
                     if( cb ){cb( ret );}
@@ -150,14 +149,14 @@ sdbControl.prototype.get_jobs = function( cb )
 
 sdbControl.prototype.del_job = function( jobname,cb )
 {
-    var self = this;
+    let self = this;
 
     self.redis.hget( self.keyStatus, jobname,function( err,reply){
         
-        var ret = { status: false};
+        let ret = { status: false};
         if( err === null && reply !== null ){
             
-            var jobSta = JSON.parse(reply);
+            let jobSta = JSON.parse(reply);
             if( jobSta.status !== false ){
                 ret.msg = jobname + " is running,can't delete. Please Stop first!";
             }else{
@@ -186,10 +185,10 @@ sdbControl.prototype.del_job = function( jobname,cb )
 
 sdbControl.prototype.add_job = function( jobname, cfg,cb )
 {
-    var self = this;
-    var ret = { status: false,msg: jobname + ' add faiule'};
+    let self = this;
+    let ret = { status: false,msg: jobname + ' add faiule'};
 
-    var retChk = checkCornString( cfg.cron );
+    let retChk = checkCornString( cfg.cron );
     if( retChk.status === false  ){
         ret.msg += retChk.msg;
         if( cb ){ cb( ret );}
@@ -215,10 +214,10 @@ sdbControl.prototype.add_job = function( jobname, cfg,cb )
 
 sdbControl.prototype.update_job = function( jobname, cfg,cb )
 {
-    var self = this;
-    var ret = { status: false,msg: jobname + ' update faiule '};
+    let self = this;
+    let ret = { status: false,msg: jobname + ' update faiule '};
 
-    var retChk = checkCornString( cfg.cron );
+    let retChk = checkCornString( cfg.cron );
     if( retChk.status === false  ){
         ret.msg += retChk.msg;
         if( cb ){ cb( ret );}
@@ -255,9 +254,9 @@ sdbControl.prototype.get_cfg = function(  )
 }
 
 sdbControl.prototype.get_job_cfg = function( jobName, cb){
-    var self = this;
+    let self = this;
     self.redis.hget( self.keyCfgs, jobName, function(err, reply){
-        var ret = { status: true,cfg:"{}"};
+        let ret = { status: true,cfg:"{}"};
         if( err === null && reply !== null ){
             console.log(reply);
             ret.cfg = reply;
@@ -268,9 +267,9 @@ sdbControl.prototype.get_job_cfg = function( jobName, cb){
 };
 
 sdbControl.prototype.set_job_cfg = function(jobName, cfg, cb){
-    var self = this;
+    let self = this;
     self.redis.hset( self.keyCfgs, jobName, cfg, function(err,reply){
-        var ret = { status: false,msg: jobName + ' config update failure'};
+        let ret = { status: false,msg: jobName + ' config update failure'};
         if( err === null && reply !== null ){
             ret.status = true;
             ret.msg = jobName + " config update success";
@@ -287,14 +286,23 @@ sdbControl.prototype.set_job_cfg = function(jobName, cfg, cb){
 
 
 function connectRedis( self ){
-	self.redis = redis.createClient( g_cfg.redis );
+	self.redis = new redis( g_cfg.redis );
 	self.redis.on("error",function( err ){
 		console.log("Error " + err);
 	});
 
 	self.redis.on("connect",function( err ){
 		console.log("-- Connect to redis.");
-	});
+    });
+    
+    self.redis.on("close",function( err ){
+		console.log("-- redis has close.");
+    });
+
+    self.redis.on("reconnecting",function( err ){
+		console.log("-- reconnecting to redis.");
+    });
+
 }
 
 function disconnectRedis( self ){
@@ -305,9 +313,9 @@ function disconnectRedis( self ){
 
 function checkCornString( szCron )
 {
-    var ret = {"status":false, "msg":""};
+    let ret = {"status":false, "msg":""};
     try {
-        var interval = CornParser.parseExpression(szCron);
+        let interval = CornParser.parseExpression(szCron);
         ret.status = true;
         ret.msg = 'Next Run at: ' + interval.next().toString();
     } catch (err) {
